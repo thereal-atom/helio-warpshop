@@ -6,6 +6,18 @@ type Props = {
     };
 };
 
+type Shop = {
+    name: string;
+    description: string;
+    imageUrl?: string;
+    products: {
+        name: string;
+        description: string;
+        price: number;
+        paymentLink: string;
+    }[];
+}
+
 export async function generateMetadata ({ params }: Props): Promise<Metadata> {
     // fetch shop details like
     // const shopData = await getShop(params.shopName)
@@ -16,8 +28,8 @@ export async function generateMetadata ({ params }: Props): Promise<Metadata> {
     // "fc:frame:button:1:target": shopData.products[0].paymentUrl
     // ... etc
 
-    const shopData: any = await new Promise((resolve) => {
-        const shops = [
+    const shopData: Shop = await new Promise((resolve, reject) => {
+        const shops: Shop[] = [
             {
                 name: "hoodies",
                 description: "Shop that sells hoodies",
@@ -47,31 +59,35 @@ export async function generateMetadata ({ params }: Props): Promise<Metadata> {
 
         const shop = shops.find(shop => shop.name === params.shopName);
 
+        if (!shop) {
+            return reject("Shop not found.");
+        };
+
         resolve(shop);
     });
 
-    return {
-        title: `Helio Warpshop | ${shopData.name}`,
-        other: {
+    const farcasterButtons: Record<`fc:frame:button:${number}${"" | ":action" | ":target"}`, string>[] = shopData.products.map((product, i) => {
+        return {
+            [`fc:frame:button:${i + 1}`]: `${product.name} - $${product.price}`,
+            [`fc:frame:button:${i + 1}:action`]: "link",
+            [`fc:frame:button:${i + 1}:target`]: product.paymentLink,
+        };
+    });
+
+    const metadata = {
+        "title": `Helio Warpshop | ${shopData.name}`,
+        "og:title": `Helio Warpshop | ${shopData.name}`,
+        "og:image": shopData.imageUrl || "",
+        "other": {
             "fc:frame": "vNext",
-            "fc:frame:image": shopData.imageUrl,
-
-            "fc:frame:button:1": "Product 1",
-            "fc:frame:button:1:action": "link",
-            "fc:frame:button:1:target": "https://app.hel.io/pay/65df262ccdb9f548d11a6687",
-            
-            "fc:frame:button:2": "Product 2",
-            "fc:frame:button:2:action": "link",
-            "fc:frame:button:2:target": "https://app.hel.io/pay/65df26e6d71118776ad59877",
-            
-            "fc:frame:button:3": "Product 3",
-            "fc:frame:button:3:action": "link",
-            "fc:frame:button:3:target": "https://app.hel.io/pay/65df274ccdb9f548d11a7033",
-
-            "og:title": `Helio Warpshop | ${shopData.name}`,
-            "og:image": shopData.imageUrl,
+            "fc:frame:image": shopData.imageUrl || "",
+            ...farcasterButtons.reduce((r, c) => Object.assign(r, c), {}),
         },
     };
+
+    console.log(metadata);
+
+    return metadata;
 };
 
 export default function Shop({ params }: Props) {
