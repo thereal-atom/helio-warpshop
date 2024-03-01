@@ -26,8 +26,20 @@ export async function generateMetadata ({ params }: Props): Promise<Metadata> {
                     {
                         name: "Product 1",
                         description: "Product 1's description.",
+                        price: 21,
+                        paymentLink: "https://app.hel.io/pay/65df262ccdb9f548d11a6687",
+                    },
+                    {
+                        name: "Product 2",
+                        description: "Product 2's description.",
+                        price: 69,
+                        paymentLink: "https://app.hel.io/pay/65df26e6d71118776ad59877",
+                    },
+                    {
+                        name: "Product 3",
+                        description: "Product 3's description.",
                         price: 420,
-                        paymentLink: "",
+                        paymentLink: "https://app.hel.io/pay/65df274ccdb9f548d11a7033",
                     },
                 ],
             },
@@ -43,6 +55,19 @@ export async function generateMetadata ({ params }: Props): Promise<Metadata> {
         other: {
             "fc:frame": "vNext",
             "fc:frame:image": shopData.imageUrl,
+
+            "fc:frame:button:1": "Product 1",
+            "fc:frame:button:1:action": "link",
+            "fc:frame:button:1:target": "https://app.hel.io/pay/65df262ccdb9f548d11a6687",
+            
+            "fc:frame:button:2": "Product 2",
+            "fc:frame:button:2:action": "link",
+            "fc:frame:button:2:target": "https://app.hel.io/pay/65df26e6d71118776ad59877",
+            
+            "fc:frame:button:3": "Product 3",
+            "fc:frame:button:3:action": "link",
+            "fc:frame:button:3:target": "https://app.hel.io/pay/65df274ccdb9f548d11a7033",
+
             "og:title": `Helio Warpshop | ${shopData.name}`,
             "og:image": shopData.imageUrl,
         },
