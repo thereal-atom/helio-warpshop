@@ -16,18 +16,9 @@ type Shop = {
         price: number;
         paymentLink: string;
     }[];
-}
+};
 
 export async function generateMetadata ({ params }: Props): Promise<Metadata> {
-    // fetch shop details like
-    // const shopData = await getShop(params.shopName)
-    // generate farcaster meta tags like
-    // "fc:frame:image": shopData.imageUrl
-    // "fc:frame:button:1": "xyz"
-    // "fc:frame:button:1:action": "abc"
-    // "fc:frame:button:1:target": shopData.products[0].paymentUrl
-    // ... etc
-
     const shopData: Shop = await new Promise((resolve, reject) => {
         const shops: Shop[] = [
             {
@@ -84,8 +75,6 @@ export async function generateMetadata ({ params }: Props): Promise<Metadata> {
             ...farcasterButtons.reduce((r, c) => Object.assign(r, c), {}),
         },
     };
-
-    console.log(metadata);
 
     return metadata;
 };
