@@ -5,7 +5,7 @@ export default function Home() {
                 className="text-accent"
                 href="/setup"
             >
-                Setup a store front
+                Setup a Warpcast Paylink
             </a>
         </div>
     )
