@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Metadata } from "next";
 import { NextRequest, NextResponse } from "next/server";
-import { Canvas } from "@napi-rs/canvas";
+import { Canvas } from "canvas";
 import { generateFarcasterMetatags } from "@/lib/utils/farcaster";
 import { generatePaylinkCurrencyCanvas, generatePaylinkDescriptionCanvas, generatePaylinkProductCanvas } from "@/lib/utils/canvas";
 import { generatePaylinkUrl, getExchangeRate, getPaylinkData } from "@/lib/utils/helio";

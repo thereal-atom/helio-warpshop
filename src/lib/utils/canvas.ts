@@ -1,4 +1,4 @@
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, loadImage } from "canvas";
 
 const PRIMARY_COLOR = "#191919";
 const SECONDARY_COLOR = "#2A2A2B";
