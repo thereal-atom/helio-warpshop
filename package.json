@@ -6,17 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "now-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/ && npm run build",
-    "deploy": "now"
+    "lint": "next lint"
   },
   "dependencies": {
-    "canvas": "^2.11.2",
     "next": "14.1.0",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^0.1.51",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
