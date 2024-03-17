@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "now-build": "wget https://github.com/jwerre/node-canvas-lambda/raw/master/canvas-lib64-layer.zip && unzip -j -d canvas_lib64 canvas-lib64-layer.zip && cp canvas_lib64/*so.1 node_modules/canvas/build/Release/ && next build"
+    "now-build": "yum install libuuid-devel libmount-devel && cp /lib64/{libuuid,libmount,libblkid}.so.1 node_modules/canvas/build/Release/ && npm run build",
+    "deploy": "now"
   },
   "dependencies": {
     "canvas": "^2.11.2",
