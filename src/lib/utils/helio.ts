@@ -2,9 +2,18 @@ import { CustomRequestResult } from "../types/api";
 
 export const getPaylinkData = async (id: string): Promise<CustomRequestResult<HelioPaylink>> => {
     const res = await fetch(`https://api.hel.io/v1/paylink/${id}/public`);
-    
-    // TODO: error handling
-    
+
+    if (!res.ok) {
+        const text = await res.text();
+
+        return {
+            success: false,
+            error: {
+                message: text || "An unknown error has occurred.",
+            },
+        };
+    };
+
     const paylink: HelioPaylink = await res.json();
 
     return {
@@ -20,8 +29,17 @@ export const getExchangeRate = async (from: string, to: string, amount: number):
     amount: string
 }>> => {
     const res = await fetch(`https://api.hel.io/v1/exchange-rates/public-fiat?from=${from}&to=${to}&amount=${amount}`);
-    
-    // TODO: error handling
+
+    if (!res.ok) {
+        const text = await res.text();
+
+        return {
+            success: false,
+            error: {
+                message: text || "An unknown error has occurred.",
+            },
+        };
+    };
 
     const rate = await res.json();
 

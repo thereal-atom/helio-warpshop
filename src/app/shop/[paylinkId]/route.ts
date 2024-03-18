@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import { NextRequest, NextResponse } from "next/server";
 import { Canvas } from "canvas";
 import { generateFarcasterMetatags } from "@/lib/utils/farcaster";
-import { generatePaylinkCurrencyCanvas, generatePaylinkDescriptionCanvas, generatePaylinkProductCanvas } from "@/lib/utils/canvas";
+import { generateErrorCanvas, generatePaylinkCurrencyCanvas, generatePaylinkDescriptionCanvas, generatePaylinkProductCanvas } from "@/lib/utils/canvas";
 import { generatePaylinkUrl, getExchangeRate, getPaylinkData } from "@/lib/utils/helio";
 
 interface Props {
@@ -40,13 +40,30 @@ const generateMetatagsHTMLComponentString = (metadata: Metadata) => {
     `;
 };
 
-const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: string, paylinkFrameType: z.infer<typeof paylinkFrameTypeSchema>): Promise<Metadata> => {
+const generateErrorMetadata = (errorMessage: string) => {
+    const canvas =  generateErrorCanvas({ errorMessage });
+
+    const canvasImageUrl = canvas.toDataURL();
+
+    const farcasterMetadata = generateFarcasterMetatags({ imageUrl: canvasImageUrl });
+
+    const title = `Helio | Error`;
+
+    const metadata = {
+        "title": title,
+        "og:title": title,
+        "og:image": canvasImageUrl,
+        ...farcasterMetadata,
+    };
+
+    return metadata;
+};
+
+const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: string, paylinkFrameType: z.infer<typeof paylinkFrameTypeSchema>, priceIndex: number): Promise<Metadata> => {
     const res = await getPaylinkData(paylinkId);
 
     if (!res.success) {
-        return {
-            // TODO: error metatags
-        };
+        return generateErrorMetadata(res.error.message);
     };
 
     const paylink = res.data;
@@ -57,8 +74,7 @@ const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: strin
             const res = await getExchangeRate(paylink.pricingCurrency.symbol, currency.currency.symbol, parseInt(paylink.price) / Math.pow(10, paylink.pricingCurrency.decimals));
 
             if (!res.success) {
-                // TODO: handle error
-                return {};
+                return generateErrorMetadata(res.error.message);
             };
 
             resolve({
@@ -67,6 +83,8 @@ const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: strin
             });
         });
     }));
+
+    const nextPriceIndex = priceIndex < (prices.length -1) ? priceIndex + 1 : 0;
 
     let canvas: Canvas;
 
@@ -94,7 +112,7 @@ const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: strin
 
             break;
         case "currency":
-            canvas = await generatePaylinkCurrencyCanvas({ prices });
+            canvas = await generatePaylinkCurrencyCanvas({ price: prices[priceIndex] });
 
             break;
         default:
@@ -112,8 +130,7 @@ const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: strin
 
     const canvasImageUrl = canvas.toDataURL();
 
-    // TODO: remove NGROK part
-    const basePostUrl = requestUrl.replace("https://localhost:3000", "https://4daf-86-169-70-176.ngrok-free.app");
+    const basePostUrl = requestUrl;
 
     const farcasterMetadata = generateFarcasterMetatags({
         imageUrl: canvasImageUrl,
@@ -132,9 +149,9 @@ const generatePaylinkFrameMetadata = async (paylinkId: string, requestUrl: strin
             },
             {
                 index: 3,
-                label: "Currency",
+                label: `${prices[nextPriceIndex].symbol} Price`,
                 action: "post",
-                target: `${basePostUrl}?paylinkFrameType=currency`,
+                target: `${basePostUrl}?paylinkFrameType=currency&priceIndex=${nextPriceIndex}`,
             },
             {
                 index: 4,
@@ -161,7 +178,9 @@ export const GET = async (
     request: NextRequest,
     { params }: Props,
 ) => {
-    const metadata = await generatePaylinkFrameMetadata(params.paylinkId, `${request.nextUrl.origin}${request.nextUrl.pathname}`, "product");
+    const host = `${request.headers.get("x-forwarded-proto")}://${request.headers.get("host")}`;
+
+    const metadata = await generatePaylinkFrameMetadata(params.paylinkId, `${host}${request.nextUrl.pathname}`, "product", 0);
 
     return new NextResponse(
         generateMetatagsHTMLComponentString(metadata) + `<body><a href=${generatePaylinkUrl(params.paylinkId)}>Redirect To Paylink</a></body>`,
@@ -173,9 +192,14 @@ export const POST = async (
     request: NextRequest,
     { params }: Props,
 ) => {
-    const paylinkFrameType = paylinkFrameTypeSchema.parse(new URL(request.url).searchParams.get("paylinkFrameType"));
+    const host = `${request.headers.get("x-forwarded-proto")}://${request.headers.get("host")}`;
 
-    const metadata = await generatePaylinkFrameMetadata(params.paylinkId, `${request.nextUrl.origin}${request.nextUrl.pathname}`, paylinkFrameType);
+    const searchParams = new URL(request.url).searchParams;
+
+    const paylinkFrameType = paylinkFrameTypeSchema.parse(searchParams.get("paylinkFrameType"));
+    const priceIndex = searchParams.get("priceIndex");
+
+    const metadata = await generatePaylinkFrameMetadata(params.paylinkId, `${host}${request.nextUrl.pathname}`, paylinkFrameType, parseInt(priceIndex?.toString() || "0"));
 
     return new NextResponse(generateMetatagsHTMLComponentString(metadata));
 };

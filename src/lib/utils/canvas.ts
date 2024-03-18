@@ -5,7 +5,7 @@ const SECONDARY_COLOR = "#2A2A2B";
 
 const TEXT_COLOR = "#E17231";
 const SECONDARY_TEXT_COLOR = "#B0B2C0";
-const FONT = "bold 36px Inter";
+const FONT = "bold 36px Arial";
 
 export const generateBaseFrameCanvas = () => {
     const canvasWidth = 955;
@@ -124,10 +124,10 @@ export const generatePaylinkDescriptionCanvas = async (data: {
 };
 
 export const generatePaylinkCurrencyCanvas = async (data: {
-    prices: {
+    price: {
         amount: number;
         symbol: string;
-    }[]
+    };
 }) => {
     const {
         canvas,
@@ -138,11 +138,24 @@ export const generatePaylinkCurrencyCanvas = async (data: {
     ctx.fillStyle = TEXT_COLOR;
 
     const minimum = 75;
-    const distance = 75;
 
-    data.prices.forEach((price, i) => {
-        ctx.fillText(`${price.amount} ${price.symbol}`, 60, minimum + i * distance);
-    });
+    ctx.fillText(`${data.price.amount} ${data.price.symbol}`, 60, minimum);
+
+    return canvas;
+};
+
+export const generateErrorCanvas = (data: {
+    errorMessage: string;
+}) => {
+    const {
+        canvas,
+        ctx,
+    } = generateBaseFrameCanvas();
+
+    ctx.font = FONT;
+    ctx.fillStyle = TEXT_COLOR;
+
+    ctx.fillText(data.errorMessage, 60, 75);
 
     return canvas;
 };
