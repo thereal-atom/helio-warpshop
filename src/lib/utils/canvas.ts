@@ -5,7 +5,7 @@ const PRIMARY_COLOR = "#2A2A2B";
 const TEXT_COLOR = "#E17231";
 const FONT = "bold 36px Inter";
 
-const API_URL = "https://097d-109-152-240-138.ngrok-free.app";
+const API_URL = "https://helio-warpshop.fly.dev/";
 
 export const generateBaseFrameCanvas = () => {
     const canvasWidth = 955;
@@ -175,7 +175,7 @@ export const generatePaylinkProductCanvas = async (data: {
 
     const socialMediaY = descriptionTextY + descriptionTextHeight + socialMediaTopPadding;
 
-    const socialMediaImage = await loadImage("https://097d-109-152-240-138.ngrok-free.app/x-icon.png");
+    const socialMediaImage = await loadImage(`${API_URL}/x-icon.png`);
 
     ctx.drawImage(socialMediaImage, imageContainerX + imageContainerWidth + leftMargin, socialMediaY);
 
@@ -276,7 +276,7 @@ export const generatePaylinkDescriptionCanvas = async (data: {
 
     // verified badge
 
-    const verifiedBadgeImage = await loadImage("https://097d-109-152-240-138.ngrok-free.app/verified-badge.png");
+    const verifiedBadgeImage = await loadImage(`${API_URL}/verified-badge.png`);
 
     const verifiedY = 20;
 
